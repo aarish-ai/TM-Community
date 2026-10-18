@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truth Mirror - Authentication</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=11">
+</head>
+<body>
+  <!-- Abstract data node background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <main id="loginScreen" class="login-wrapper">
+      <div class="glass-panel">
+          
+          <header class="panel-header">
+              <a href="/" style="text-decoration: none; color: inherit; display: inline-block;">
+                  <div class="lens-logo">
+                      <div class="lens-core"></div>
+                  </div>
+                  <h1>Truth Mirror</h1>
+              </a>
+              <p class="subtitle" id="authSubtitle">Login</p>
+              <div class="auth-tabs" id="authTabs">
+                  <button type="button" class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Login</button>
+                  <button type="button" class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+              </div>
+          </header>
+          
+          <div id="authViewLogin">
+              <form id="login-form">
+                  <div class="input-wrapper">
+                      <label for="operator-id">Email</label>
+                      <div class="input-field-container">
+                          <input type="email" id="operator-id" placeholder="example@email.com" autocomplete="email" spellcheck="false" required>
+                          <div class="glow-border"></div>
+                      </div>
+                  </div>
+                  
+                  <div class="input-wrapper">
+                      <label for="passkey">Password</label>
+                      <div class="input-field-container">
+                          <input type="password" id="passkey" placeholder="••••••••" autocomplete="current-password" required>
+                          <div class="glow-border"></div>
+                      </div>
+                  </div>
+                  
+                  <button type="submit" class="auth-btn" id="loginBtn">
+                      <span class="btn-text" id="loginBtnText">Initialize Connection</span>
+                      <div class="btn-glow"></div>
+                  </button>
+                  
+                  <div id="loginError" class="login-error-modern" style="display: none; color: #ef4444; font-size: 0.875rem; text-align: center; margin-top: 1rem;">Invalid Email or Password</div>
+              </form>
+          </div>
+
+          <div id="authViewSignup" style="display: none;">
+              <form id="signup-form">
+                  <div class="input-wrapper">
+                      <label for="signup-email">Email Address</label>
+                      <div class="input-field-container">
+                          <input type="email" id="signup-email" placeholder="name@example.com" autocomplete="email" spellcheck="false" required>
+                          <div class="glow-border"></div>
+                      </div>
+                  </div>
+
+
+                  <div class="input-wrapper">
+                      <label for="signup-password">Password</label>
+                      <div class="input-field-container">
+                          <input type="password" id="signup-password" placeholder="At least 8 characters..." autocomplete="new-password" minlength="8" required>
+                          <div class="glow-border"></div>
+                      </div>
+                  </div>
+                  
+                  <button type="submit" class="auth-btn" id="signupBtn">
+                      <span class="btn-text" id="signupBtnText">Create Account</span>
+                      <div class="btn-glow"></div>
+                  </button>
+                  
+                  <div id="signupError" class="login-error-modern" style="display: none; color: #ef4444; font-size: 0.875rem; text-align: center; margin-top: 1rem;"></div>
+              </form>
+          </div>
+
+          <div id="authViewVerify" style="display: none;">
+              <form id="verify-form">
+                  <p style="font-size: 0.875rem; color: var(--text-muted); text-align: center; margin-bottom: 1.25rem;">
+                      Enter the 6-digit code sent to<br><strong id="verifyEmailDisplay" style="color: var(--accent-teal); word-break: break-all;"></strong>
+                  </p>
+                  <div class="input-wrapper">
+                      <label for="verify-code">Verification Code</label>
+                      <div class="input-field-container">
+                          <input type="text" id="verify-code" placeholder="000000" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em;" required>
+                          <div class="glow-border"></div>
+                      </div>
+                  </div>
+                  
+                  <button type="submit" class="auth-btn" id="verifyBtnSubmit">
+                      <span class="btn-text" id="verifyBtnText">Verify & Continue</span>
+                      <div class="btn-glow"></div>
+                  </button>
+                  
+                  <div id="verifyError" class="login-error-modern" style="display: none; color: #ef4444; font-size: 0.875rem; text-align: center; margin-top: 1rem;"></div>
+
+                  <div style="text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--text-dim);">
+                      Didn't receive a code? 
+                      <button type="button" onclick="resendCode()" id="resendCodeBtn" style="background: none; border: none; color: var(--accent-teal); cursor: pointer; text-decoration: underline; font-family: inherit; font-size: inherit; padding: 0;">Resend Code</button>
+                      <div id="resendFeedback" style="display: none; font-size: 0.8rem; margin-top: 0.5rem;"></div>
+                  </div>
+              </form>
+          </div>
+
+          <div style="text-align: center; margin-top: 1.5rem;">
+              <a href="/" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none; transition: color 0.2s;">&larr; Back to Home</a>
+          </div>
+      </div>
+  </main>
+
+  <script src="/static/script.js?v=11"></script>
+</body>
+</html>

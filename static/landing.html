@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truth Mirror - Global Claim Verification</title>
+  <meta name="description" content="Instant AI-powered claim verification across hundreds of global news sources, state media, and wire services.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/landing.css">
+</head>
+<body>
+  <!-- Ambient background lighting and grid -->
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-inner">
+        <a href="/" class="brand-logo" aria-label="Truth Mirror Home">
+          TRUTH<span>MIRROR</span>
+        </a>
+        <div class="nav-actions">
+          <a href="/static/privacy.html" class="nav-plain-link">Privacy Policy</a>
+          <a href="/static/help.html" class="nav-plain-link">Help</a>
+          <a href="#" class="nav-plain-link contact-link">Contact</a>
+          <a href="https://github.com/aarish-ai/TM-Community" target="_blank" rel="noopener noreferrer" class="nav-plain-link">Github</a>
+          <a href="/app" class="nav-app-link">App</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hallmark Atmospheric Split Hero Section -->
+      <section class="hero split-hero" aria-labelledby="hero-title">
+        <div class="hero-left">
+          <h1 id="hero-title" class="hero-headline">
+            Verify What's <span class="font-serif-accent">True.</span>
+          </h1>
+          
+          <p class="hero-subtext">
+            Autonomous multi-source intelligence engine. Cross-examines statements across Western, Eastern, and non-aligned wire services to expose bias, verify facts, and reconstruct the complete narrative.
+          </p>
+
+          <div class="hero-metrics">
+            <div class="metric-chip">
+              <span class="metric-dot"></span>
+              <span>50+ Live Feeds</span>
+            </div>
+            <div class="metric-chip">
+              <span class="metric-dot"></span>
+              <span>Consensus Synthesis</span>
+            </div>
+            <div class="metric-chip">
+              <span class="metric-dot"></span>
+              <span>Instant Cached Proof</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="terminal-glow" aria-hidden="true"></div>
+          <div class="terminal-container">
+            <div class="terminal-body">
+              <form id="landingSearchForm" class="landing-search-form" onsubmit="return false;">
+                <div class="landing-search-bar" id="landingSearchBar">
+                  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input 
+                    type="text" 
+                    id="landingSearchInput" 
+                    placeholder="Type a claim or select from cache..." 
+                    autocomplete="off" 
+                    spellcheck="false" 
+                  />
+                  <button type="submit" id="landingAnalyzeBtn" class="landing-analyze-btn">
+                    <span>Analyze</span>
+                    <kbd class="kbd-shortcut">↵</kbd>
+                  </button>
+                </div>
+
+                <!-- Cache Dropdown Menu -->
+                <div id="cacheDropdown" class="cache-dropdown" style="display: none;">
+                  <div class="dropdown-header">
+                    <span>Quick Runs</span>
+                  </div>
+                  <ul id="cacheList" class="cache-list" role="listbox">
+                    <!-- Populated dynamically by landing.js -->
+                  </ul>
+                  <div class="dropdown-footer">
+                    <span>Select any cached claim or press <strong>Enter</strong> to run</span>
+                  </div>
+                </div>
+              </form>
+
+              <!-- Guest Quota Limit Notice (Hidden by default) -->
+              <div id="guestLimitNotice" class="guest-limit-notice" style="display: none;">
+                <div class="notice-icon">⚠️</div>
+                <div class="notice-content">
+                  <p class="notice-title">Free Custom Claim Used</p>
+                  <p class="notice-desc">You've used your 1 free custom query. Select a <strong>cached claim</strong> from the dropdown for instant free analysis, or sign in for unlimited queries.</p>
+                  <div class="notice-actions">
+                    <a href="/static/login.html?tab=signup" class="notice-btn-signup">Sign Up Free</a>
+                    <button type="button" id="dismissNoticeBtn" class="notice-btn-dismiss">Choose Cached Claim</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Scroll Story Section -->
+      <section id="scroll-story" class="scroll-story" aria-label="Interactive Capabilities">
+        <div class="story-sticky">
+          <canvas id="story-canvas" class="story-canvas"></canvas>
+          <div class="story-content-container">
+            <div id="story-card" class="feature-card story-card">
+              <h3 id="story-title" class="story-title">Why Trust <span class="font-serif-accent">US?</span></h3>
+              <p id="story-text" class="story-text">We rely on AI which fetches from sources. The articles are real and the AI is instructed to explicitly fetch from that data. We link each source for every claim, showing clearly what is supported by the sources and what is not. After all these efforts AI can still be unreliable in some cases, we ask you to submit any errors or problems through the feedback form.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section class="pricing-section" id="pricing" aria-labelledby="pricing-title">
+        <div class="pricing-container">
+          <div class="pricing-header">
+            <h2 id="pricing-title" class="pricing-headline">Pricing</h2>
+            <p class="pricing-subtext">Powerful open intelligence, accessible to everyone.</p>
+          </div>
+
+          <div class="pricing-cards">
+            <!-- Free Plan Card -->
+            <div class="pricing-card free-tier">
+              <div class="card-plan-header">
+                <h3 class="plan-title">Free</h3>
+                <div class="plan-price">$0 <span>/ forever</span></div>
+              </div>
+              <p class="plan-desc">Full access to core investigative tools for truth seekers and researchers.</p>
+              <ul class="pricing-features">
+                <li>
+                  <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Complete Access to the TM Intelligence Engine</span>
+                </li>
+                <li>
+                  <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>5 free claims per day</span>
+                </li>
+                <li>
+                  <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Unlimited Cache Claims</span>
+                </li>
+                <li>
+                  <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Complete Breakdown, Verification Analysis, Hidden Stories and Sources List</span>
+                </li>
+              </ul>
+              <a href="/app" class="pricing-cta-btn">Start Verifying Free</a>
+            </div>
+
+            <!-- Paid / Coming Soon Plan Card -->
+            <div class="pricing-card paid-tier">
+              <div class="card-plan-header">
+                <h3 class="plan-title">Advanced</h3>
+                <div class="plan-price">$4 <span>/ month</span></div>
+              </div>
+              <p class="plan-desc">Expanded volume and advanced analytical export pipelines.</p>
+              <ul class="pricing-features">
+                <li class="faded-feature">
+                  <span class="feature-dot"></span>
+                  <span>Upgraded Access . . .</span>
+                </li>
+                <li class="faded-feature">
+                  <span class="feature-dot"></span>
+                  <span>20 claims . . .</span>
+                </li>
+                <li class="faded-feature">
+                  <span class="feature-dot"></span>
+                  <span>Exporting Reports . . .</span>
+                </li>
+              </ul>
+              <button class="pricing-cta-btn disabled-btn" disabled>Coming Soon</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p class="footer-text">&copy; 2026 Truth Mirror · Global Claim Verification System</p>
+    </footer>
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contact-modal" class="contact-modal hidden" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+    <div class="contact-card">
+      <div class="contact-blob"></div>
+      <div class="contact-bg">
+        <button type="button" class="close-modal-btn" aria-label="Close dialog">&times;</button>
+        <h3 id="contact-modal-title">Contact Us</h3>
+        <p>You can contact us through this email:</p>
+        <a href="mailto:developer@truth-mirror.net" class="contact-email-link">developer@truth-mirror.net</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/landing.js"></script>
+  <script>
+    document.querySelectorAll('.contact-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('contact-modal');
+        if (modal) modal.classList.remove('hidden');
+      });
+    });
+    const closeBtn = document.querySelector('.close-modal-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        const modal = document.getElementById('contact-modal');
+        if (modal) modal.classList.add('hidden');
+      });
+    }
+    const modalEl = document.getElementById('contact-modal');
+    if (modalEl) {
+      modalEl.addEventListener('click', (e) => {
+        if (e.target.id === 'contact-modal') {
+          e.target.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

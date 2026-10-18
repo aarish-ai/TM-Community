@@ -1,0 +1,128 @@
+"""Adaptive rate limiter for API calls."""
+
+import asyncio
+import time
+import logging
+from collections import defaultdict
+
+logger = logging.getLogger(__name__)
+
+class AdaptiveRateLimiter:
+    """
+    Token-bucket rate limiter that adapts based on whether
+    the last API call to a provider was rate-limited or not.
+    
+    - If the last call succeeded: delay is 0 (no wait).
+    - If the last call was rate-limited (429): apply exponential backoff
+      starting at base_delay, doubling each consecutive 429, capped at max_delay.
+    - Resets backoff on next success.
+    """
+    
+    def __init__(self, base_delay: float = 2.0, max_delay: float = 30.0, max_size: int = 1000):
+        self._base_delay = base_delay
+        self._max_delay = max_delay
+        self._max_size = max_size
+        self._consecutive_429: dict[str, int] = {}
+        self._lock = asyncio.Lock()
+        
+    def _set_count(self, provider: str, count: int) -> None:
+        if provider in self._consecutive_429:
+            del self._consecutive_429[provider]
+        self._consecutive_429[provider] = count
+        if len(self._consecutive_429) > self._max_size:
+            oldest = next(iter(self._consecutive_429))
+            del self._consecutive_429[oldest]
+    
+    def record_success(self, provider: str) -> None:
+        """Reset backoff counter for a provider after a successful call."""
+        if provider in self._consecutive_429:
+            del self._consecutive_429[provider]
+    
+    def record_rate_limit(self, provider: str) -> None:
+        """Increment backoff counter for a provider after a 429."""
+        count = self._consecutive_429.get(provider, 0)
+        self._set_count(provider, count + 1)
+    
+    async def wait_if_needed(self, provider: str) -> float:
+        """
+        Wait adaptively based on recent rate-limit history for this provider.
+        Returns the number of seconds actually waited.
+        """
+        count = self._consecutive_429.get(provider, 0)
+        if count == 0:
+            return 0.0
+        
+        delay = min(self._base_delay * (2 ** (count - 1)), self._max_delay)
+        logger.info(
+            f"[RateLimiter] Waiting {delay:.1f}s for {provider} "
+            f"(consecutive 429s: {count})"
+        )
+        await asyncio.sleep(delay)
+        return delay
+
+
+# Module-level singleton — shared across all pipeline stages within a run.
+# Thread-safe because asyncio is single-threaded within an event loop.
+rate_limiter = AdaptiveRateLimiter()
+
+import threading
+
+class RateLimiter:
+    """
+    A thread-safe rate limiter that forces a minimum delay between executions.
+    Useful for throttling requests to third-party APIs (like Google News RSS) 
+    that heavily penalize concurrent bursts.
+    """
+    def __init__(self, delay_seconds: float):
+        self.delay = delay_seconds
+        self.lock = threading.Lock()
+        self.last_request_time = 0.0
+
+    def wait(self):
+        """
+        Acquires the lock and sleeps if necessary to ensure that at least
+        `delay_seconds` have passed since the last time `wait()` was called.
+        """
+        with self.lock:
+            now = time.time()
+            elapsed = now - self.last_request_time
+            if elapsed < self.delay:
+                time.sleep(self.delay - elapsed)
+            self.last_request_time = time.time()
+
+# Global rate limiter instance for Google News RSS (shared across modules)
+google_news_limiter = RateLimiter(delay_seconds=2.0)
+
+# Global rate limiter instance for GDELT API (shared across modules)
+gdelt_limiter = RateLimiter(delay_seconds=1.0)
+
+class AsyncRateLimiter:
+    """Async equivalent of RateLimiter."""
+    def __init__(self, delay_seconds: float):
+        self.delay = delay_seconds
+        self._lock = None
+        self._loop = None
+        self.last_request_time = 0.0
+
+    def _get_lock(self):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if self._lock is None or self._loop != loop:
+            self._lock = asyncio.Lock()
+            self._loop = loop
+        return self._lock
+
+    async def wait(self):
+        lock = self._get_lock()
+        async with lock:
+            now = time.time()
+            elapsed = now - self.last_request_time
+            if elapsed < self.delay:
+                await asyncio.sleep(self.delay - elapsed)
+            self.last_request_time = time.time()
+
+# Global rate limiters for LLM calls (2.0 seconds = 30 RPM max)
+llm_sync_limiter = RateLimiter(delay_seconds=2.0)
+llm_async_limiter = AsyncRateLimiter(delay_seconds=2.0)

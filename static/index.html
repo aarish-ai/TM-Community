@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truth Mirror - Global Verification System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=11">
+</head>
+<body>
+  <!-- Abstract data node background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <main class="main-content" id="mainApp">
+    <div class="top-bar">
+      <div class="brand">
+        <h2>TRUTH<span style="color: var(--accent-teal);">MIRROR</span></h2>
+      </div>
+      <div class="search-box">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="claimInput" placeholder="Enter a geopolitical claim to analyze..." />
+        <div id="guestClaimWrapper" title="">
+          <button class="btn btn-primary" id="verifyBtn">
+            <span class="btn-text">Analyze</span>
+            <div class="spinner" id="verifyLoader" style="display: none;"></div>
+          </button>
+        </div>
+      </div>
+      <a href="https://forms.gle/Kv9HrR1B4LizzhLn9" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+        Feedback
+      </a>
+      <a id="authToggleBtn" class="feedback-btn" href="/static/login.html" style="margin-left: 0.5rem;">Sign Up</a>
+      <div id="loadingStatus" style="font-size: 0.9rem; color: var(--text-muted); display:none;"></div>
+    </div>
+
+
+    <div class="pipeline-tracker" id="pipelineTracker" style="display: none;">
+      <span class="pipeline-label">ANALYSIS PIPELINE</span>
+      <div class="pipeline-steps" id="pipelineSteps">
+        <div class="pipeline-step" data-stage="classifying">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Classifying claim scope</span>
+        </div>
+        <div class="pipeline-step" data-stage="decomposing_temporal">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Decomposing & Temporal bounds</span>
+        </div>
+        <div class="pipeline-step" data-stage="generating_queries">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Generating search vectors</span>
+        </div>
+        <div class="pipeline-step" data-stage="fetching_primary">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Fetching targeted queries</span>
+        </div>
+        <div class="pipeline-step" data-stage="fetching_regional">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Fetching regional media</span>
+        </div>
+        <div class="pipeline-step" data-stage="deduplicating">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Aggregating evidence</span>
+        </div>
+        <div class="pipeline-step" data-stage="analyzing_primary">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Analyzing primary evidence</span>
+        </div>
+        <div class="pipeline-step" data-stage="cross_referencing">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Cross-referencing stances</span>
+        </div>
+        <div class="pipeline-step" data-stage="extracting_stories">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Extracting hidden narratives</span>
+        </div>
+        <div class="pipeline-step" data-stage="weighing_contradictions">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Weighing contradictions</span>
+        </div>
+        <div class="pipeline-step" data-stage="synthesizing_verdict">
+          <span class="step-indicator">○</span>
+          <span class="step-text">Synthesizing final verdict</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="termsOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9998; backdrop-filter: blur(2px);"></div>
+      <div class="terms-banner" id="termsBanner">
+      <span class="terms-banner-icon">ℹ️</span>
+      <div>
+        <strong>Notice:</strong> Claims are processed using AI which can make mistakes, consequently results should not be treated as definitive facts.
+        Analysis typically takes <strong>5-7 minutes</strong> depending on claim complexity and server load.
+      </div>
+      <button class="terms-banner-close" onclick="dismissTermsBanner()" title="Dismiss">✕</button>
+    </div>
+
+    <div id="initialState" class="empty-state">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1.5rem;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <h2 style="font-size: 2rem; color: var(--text-main); margin-bottom: 0.5rem;">Intelligence Engine Ready</h2>
+      <p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Submit a claim above to run deep parallel analysis across global sources, surface real facts against unclear opinions and extract hidden narratives.</p>
+    </div>
+
+    <div id="dashboard" class="dashboard" style="display: none;">
+      
+      <!-- Panel 1: Verdict -->
+      <div class="verdict-banner panel-card" id="verdictBanner">
+        <div class="verdict-header">
+          <span class="panel-subtitle">CLAIM ANALYZED</span>
+          <div class="confidence-badge" id="confidenceBadge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">ANALYZING</div>
+        </div>
+        <div class="verdict-claim" id="verdictClaim"></div>
+        <div class="verdict-value" id="verdictValue" style="color: var(--text-muted);">
+          <span style="opacity: 0.7;">⚙</span> Processing...
+        </div>
+        <div class="verdict-one-line" id="verdictOneLine">Processing full intelligence report...</div>
+      </div>
+
+      <div id="skeletonContainer" style="display: none;">
+        <!-- Full-width skeleton -->
+        <div class="skeleton-card skeleton-lg"></div>
+        <!-- 3-column skeleton row -->
+        <div class="skeleton-grid">
+          <div class="skeleton-card skeleton-md"></div>
+          <div class="skeleton-card skeleton-md"></div>
+          <div class="skeleton-card skeleton-md"></div>
+        </div>
+        <!-- Full-width skeleton -->
+        <div class="skeleton-card skeleton-lg" style="margin-top: 1.5rem;"></div>
+      </div>
+
+      <div id="resultsContainer" style="display: none; grid-template-columns: 1fr; gap: 1.5rem;">
+        
+        <!-- Panel 2: Breakdown -->
+        <div class="panel panel-card">
+          <h3 class="panel-subtitle">VERDICT BREAKDOWN</h3>
+          <p class="panel-description" id="fullReasoning"></p>
+        
+          <div class="breakdown-grid">
+            <div class="breakdown-card card-success">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                VERIFIED FACTS
+              </h4>
+              <p id="whatIsTrue"></p>
+            </div>
+            <div class="breakdown-card card-danger">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                DISPROVEN ELEMENTS
+              </h4>
+              <p id="whatIsFalse"></p>
+            </div>
+            <div class="breakdown-card card-warning">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                UNCLEAR / DISPUTED
+              </h4>
+              <p id="whatIsUnclear"></p>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Panel 4: Hidden Stories -->
+        <div class="panel panel-card">
+          <h3 class="panel-subtitle">HIDDEN STORIES & OMISSIONS <span class="counter-badge" id="hiddenStoriesCount">0</span></h3>
+          <div id="hiddenStoriesContainer"></div>
+        </div>
+
+        <!-- Panel 5: Sources -->
+        <div class="panel panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="panel-subtitle" style="margin-bottom: 0;">SOURCE ANALYSIS</h3>
+            <span style="color: var(--text-dim); font-size: 0.8rem;"><span id="totalCount">0</span> sources analyzed</span>
+          </div>
+
+          <!-- LOW-EVIDENCE WARNING -->
+          <div id="lowEvidenceWarning" style="display:none;"></div>
+
+          <!-- SECTION A: Relevant Sources table -->
+          <div id="relevantSourcesSection" class="table-container">
+            <table id="relevantSourcesTable" class="premium-table">
+              <thead>
+                <tr>
+                  <th>SOURCE</th>
+                  <th>STANCE</th>
+                  <th>CONFIDENCE</th>
+                  <th>KEY EMPHASIS</th>
+                  <th class="source-card-toggle-cell"></th>
+                </tr>
+              </thead>
+              <tbody id="relevantSourcesBody"></tbody>
+            </table>
+            <!-- Empty state message -->
+            <p id="noRelevantMsg" style="display:none; color: var(--text-muted); margin-top: 1rem;">
+              No sources were found which confirm or deny this claim.
+            </p>
+          </div>
+
+          <!-- SECTION B: Background & Inconclusive -->
+          <div id="backgroundSourcesSection" style="margin-top: 1.5rem;">
+            <div class="accordion-item" id="backgroundAccordion">
+              <div class="accordion-header" onclick="toggleBackgroundSources()" id="backgroundAccordionHeader">
+                <span>Background & Inconclusive Sources (<span id="backgroundCount">0</span>)</span>
+                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div id="backgroundSourcesContent" class="accordion-content">
+                <div class="table-container">
+                  <table id="backgroundSourcesTable" class="premium-table" style="margin-top: 1rem;">
+                    <thead>
+                      <tr>
+                        <th>SOURCE</th>
+                        <th>STANCE</th>
+                        <th>CONFIDENCE</th>
+                        <th>KEY EMPHASIS</th>
+                        <th class="source-card-toggle-cell"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="backgroundSourcesBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/script.js?v=11"></script>
+</body>
+</html>
